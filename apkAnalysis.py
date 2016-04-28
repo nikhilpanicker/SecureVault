@@ -29,14 +29,11 @@ def do_upload():
 
     save_path=configParser.get('General_Config', 'FilePath')
 
-    #category = request.forms.get('category')
     upload = request.files.get('upload')
     name, ext = os.path.splitext(upload.filename)
     if ext not in ('.apk'):
         return "File extension not allowed."
 
-    #save_path = "/tmp/{category}".format(category=category)
-    #save_path = "/home/nikhil/Documents/295B/downloads/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
@@ -82,7 +79,6 @@ def callDownloadApk():
     #responseBase = unirest.post("http://localhost:8080/analyseApk", headers={ "Accept": "application/json" },
                                        #body={requestBody})
     return callAnalyseApk(requestBody+".apk")
-    #return "Success"
 
 @route('/analyseApk', method='POST')
 def callAnalyseApk(requestBody):
