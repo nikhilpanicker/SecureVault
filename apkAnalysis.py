@@ -52,6 +52,7 @@ def do_upload():
         os.remove(file_path)
     upload.save(file_path)
     logging.info("File successfully saved to '{0}'.".format(save_path))
+    logging.info("Get report of: "+upload.filename)
     return callAnalyseApk(upload.filename)
 
 @route('/downloadApk', method='POST')
@@ -158,6 +159,7 @@ def buildResult(apkFingerprint,db,apkPath):
     v = virustotal.VirusTotal('1adad59c01c25eaf3b3f2435c09c3ae253c9b81f2f156682c1fe81790223c584');
     #virusTotalReportJSON = v.scan(apkFingerprint)
     #virusTotalReportJSON = v.scan("/home/voldy/Desktop/transit.apk")
+    logging.info("Getting virus total information of apk from apk path"+apkPath)
     virusTotalReportJSON = v.scan(apkPath)
 
     scanCompareResults = virusTotalReportJSON._report['scans']
@@ -169,11 +171,13 @@ def buildResult(apkFingerprint,db,apkPath):
     )
 
     #fetch scan result from mongoDB
+    logging.info("Fetch results from mongoDB with fingerprint"+apkFingerprint)
     analyzeSuccessResultsCollection = db.AnalyzeSuccessResults.find({'file_sha256': apkFingerprint});
 
+    logging.info( "Count of result retrieved from mongodb is: ",analyzeSuccessResultsCollection.count())
     json_docs = [json.dumps(doc, default=json_util.default) for doc in analyzeSuccessResultsCollection]
 
-    logging.info( "Count is: ",analyzeSuccessResultsCollection.count())
+    logging.info( "Json docs count: "+json_docs.count())
     tempJson = json_docs[0]
     jsonObject = json.loads(tempJson)
 
