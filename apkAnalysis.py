@@ -177,7 +177,7 @@ def buildResult(apkFingerprint,db,apkPath):
     logging.info( "Count of result retrieved from mongodb is: ",analyzeSuccessResultsCollection.count())
     json_docs = [json.dumps(doc, default=json_util.default) for doc in analyzeSuccessResultsCollection]
 
-    logging.info( "Json docs count: "+json_docs.count())
+    #logging.info( "Json docs count: "+json_docs.count())
     tempJson = json_docs[0]
     jsonObject = json.loads(tempJson)
 
