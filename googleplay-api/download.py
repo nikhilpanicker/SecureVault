@@ -39,7 +39,7 @@ print "Downloading %s..." % sizeof_fmt(doc.details.appDetails.installationSize),
 data = api.download(packagename, vc, ot)
 print "..."+filename
 #filepath=os.path.abspath(os.path.join(os.getcwd(), os.pardir)) +"\Download\\"
-filepath = os.getcwd() +"\Download\\"
+filepath = os.getcwd() +"/Download/"
 print "Saving to"+filepath+filename
 open(filepath+filename, "wb").write(data)
 print "Done"

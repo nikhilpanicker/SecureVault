@@ -32,7 +32,7 @@ def do_upload():
     # configParser.read(db_config_file)
 
     # save_path=configParser.get('General_Config', 'FilePath')
-    directory = os.getcwd() +"\Download\\"
+    directory = os.getcwd() +"/Download/"
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -79,10 +79,10 @@ def callDownloadApk():
     # configParser.read(db_config_file)
 
     # downloadPath=configParser.get('General_Config', 'DownloadSciptPath')
-    directory = os.getcwd() +"\Download\\"
+    directory = os.getcwd() +"/Download/"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    downloadPath = os.getcwd() + "\googleplay-api\\"
+    downloadPath = os.getcwd() + "/googleplay-api/"
 
     #Calling the download apk method
     cmd = 'python '+downloadPath+'download.py ' + requestBody
@@ -110,7 +110,7 @@ def callAnalyseApk(requestBody):
     configParser.read(db_config_file)
 
     # filePath=configParser.get('General_Config', 'FilePath')
-    filePath = os.getcwd() +"\Download\\"
+    filePath = os.getcwd() +"/Download/"
     print "File path is: "+filePath
     MongoDB_Hostname = configParser.get('DB_Config', 'MongoDB_Hostname')
     MongoDB_Database = configParser.get('DB_Config', 'MongoDB_Database')
