@@ -209,4 +209,10 @@ def calculateThreatQ(jsonObject,userPreferenceArr):
     return result
 
 if __name__ == '__main__':
+    logger = logging.getLogger('myapp')
+    hdlr = logging.FileHandler('/tmp/SecureVault.log')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.WARNING)
     run(host='0.0.0.0', port=8081)
