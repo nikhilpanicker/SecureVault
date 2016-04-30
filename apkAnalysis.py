@@ -41,7 +41,7 @@ def do_upload():
         os.makedirs(directory)
 
     save_path = directory
-    #logging.info(request._get_body_string())
+    logging.info(request._get_body_string())
     #upload = request.body.get('upload')
 
     upload = request.files.get('upload')
