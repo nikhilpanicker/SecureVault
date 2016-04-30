@@ -1,6 +1,6 @@
 import hashlib
 import traceback
-from bottle import request, route, static_file, run, , BaseRequest
+from bottle import request, route, static_file, run, BaseRequest
 from pymongo import MongoClient
 from ConfigParser import SafeConfigParser
 import os
@@ -222,5 +222,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, filename="logfile", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
     logging.info("hello")
-    BaseRequest.MEMFILE_MAX =  41943040 
+    BaseRequest.MEMFILE_MAX =  41943040
     run(host='0.0.0.0', port=8081)
