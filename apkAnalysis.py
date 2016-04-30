@@ -41,14 +41,14 @@ def do_upload():
         os.makedirs(directory)
 
     save_path = directory
-    logging.info(request._get_body_string())
+    #logging.info(request._get_body_string())
     #upload = request.body.get('upload')
 
     upload = request.files.get('upload')
     data = request.files.data
 
     logging.info("File received for upload is"+upload.filename)
-    logging.info("Through data"+data.filename)
+    #logging.info("Through data"+data.filename)
     name, ext = os.path.splitext(upload.filename)
     if ext not in ('.apk'):
         return "File extension not allowed."
