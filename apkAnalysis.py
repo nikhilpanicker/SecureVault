@@ -35,14 +35,16 @@ def do_upload():
 
     # save_path=configParser.get('General_Config', 'FilePath')
     logging.info("Starting upload method")
+    logging.info(request.__sizeof__())
     directory = os.getcwd() +"/Download/"
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     save_path = directory
-    logging.info(request._get_body_string())
-    upload = request.body.get('upload')
-    #upload = request.files.get('upload')
+    #logging.info(request._get_body_string())
+    #upload = request.body.get('upload')
+
+    upload = request.files.get('upload')
     logging.info("File received for upload is"+upload.filename)
     name, ext = os.path.splitext(upload.filename)
     if ext not in ('.apk'):
