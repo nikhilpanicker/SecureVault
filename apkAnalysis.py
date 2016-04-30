@@ -9,10 +9,12 @@ import sys
 import unirest
 import virustotal
 import json
+import logging
 from bson import json_util
 
 @route('/success', method='GET')
 def get_success():
+    logging.info('Sanity test')
     return "Success!!"
 
 @route('/uploadApk', method='POST')
@@ -49,7 +51,7 @@ def do_upload():
     if(os.path.isfile(file_path)):
         os.remove(file_path)
     upload.save(file_path)
-    print "File successfully saved to '{0}'.".format(save_path)
+    logging.info("File successfully saved to '{0}'.".format(save_path))
     return callAnalyseApk(upload.filename)
 
 @route('/downloadApk', method='POST')
@@ -86,7 +88,7 @@ def callDownloadApk():
 
     #Calling the download apk method
     cmd = 'python '+downloadPath+'download.py ' + requestBody
-    print "cmd is: "+cmd
+    logging.info("cmd is: "+cmd)
     os.system(cmd)
     #responseBase = unirest.post("http://localhost:8080/analyseApk", headers={ "Accept": "application/json" },
                                        #body={requestBody})
@@ -95,7 +97,7 @@ def callDownloadApk():
 @route('/analyseApk', method='POST')
 def callAnalyseApk(requestBody):
 
-    print "Started scanning......."
+    logging.info("Started scanning.......")
 
     if platform.system().lower() == "windows":
         db_config_file = os.path.join(os.path.dirname(sys.executable), 'androbugs-db.cfg')
@@ -103,7 +105,7 @@ def callAnalyseApk(requestBody):
         db_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'androbugs-db.cfg')
 
     if not os.path.isfile(db_config_file):
-        print("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
+        logging.info("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
         traceback.print_exc()
 
     configParser = SafeConfigParser()
@@ -111,7 +113,7 @@ def callAnalyseApk(requestBody):
 
     # filePath=configParser.get('General_Config', 'FilePath')
     filePath = os.getcwd() +"/Download/"
-    print "File path is: "+filePath
+    logging.info("File path is: "+filePath)
     MongoDB_Hostname = configParser.get('DB_Config', 'MongoDB_Hostname')
     MongoDB_Database = configParser.get('DB_Config', 'MongoDB_Database')
     Collection_Analyze_Success_Results = configParser.get('DB_Collections', 'Collection_Analyze_Success_Results')
@@ -119,7 +121,7 @@ def callAnalyseApk(requestBody):
     client = MongoClient(MongoDB_Hostname)
     db = client[MongoDB_Database]
     collection_AppInfo = db[Collection_Analyze_Success_Results]
-    print "Trying"+filePath+requestBody
+    logging.info("Trying"+filePath+requestBody)
     with open(filePath+requestBody) as f:
         data = f.read()
         file_sha256 = hashlib.sha256(data).hexdigest()
@@ -127,9 +129,10 @@ def callAnalyseApk(requestBody):
 
     if cursor.count() == 0:
         cmd = 'python androbugs.py -s -f ' + filePath+ requestBody
+        logging.info('Executing: '+cmd)
         os.system(cmd)
     else:
-        print "Record already exist"
+        logging.info( "Record already exist")
 
     return buildResult(file_sha256,db,filePath+requestBody)
     #return "Success"
@@ -170,7 +173,7 @@ def buildResult(apkFingerprint,db,apkPath):
 
     json_docs = [json.dumps(doc, default=json_util.default) for doc in analyzeSuccessResultsCollection]
 
-    print "Count is: ",analyzeSuccessResultsCollection.count()
+    logging.info( "Count is: ",analyzeSuccessResultsCollection.count())
     tempJson = json_docs[0]
     jsonObject = json.loads(tempJson)
 

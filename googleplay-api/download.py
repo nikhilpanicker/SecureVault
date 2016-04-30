@@ -5,6 +5,7 @@ GOOGLE_LOGIN = GOOGLE_PASSWORD = AUTH_TOKEN = None
 
 import sys
 import os
+import logging
 from pprint import pprint
 
 from config import *
@@ -35,12 +36,12 @@ vc = doc.details.appDetails.versionCode
 ot = doc.offer[0].offerType
 
 # Download
-print "Downloading %s..." % sizeof_fmt(doc.details.appDetails.installationSize),
+logging.info( "Downloading %s..." % sizeof_fmt(doc.details.appDetails.installationSize),)
 data = api.download(packagename, vc, ot)
-print "..."+filename
+logging.info( "..."+filename)
 #filepath=os.path.abspath(os.path.join(os.getcwd(), os.pardir)) +"\Download\\"
 filepath = os.getcwd() +"/Download/"
-print "Saving to"+filepath+filename
+logging.info( "Saving to"+filepath+filename)
 open(filepath+filename, "wb").write(data)
-print "Done"
+logging.info( "Done with downloading apk")
 
