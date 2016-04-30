@@ -169,6 +169,8 @@ def buildResult(apkFingerprint,db,apkPath):
     analyzeSuccessResultsCollection = db.AnalyzeSuccessResults.find({'file_sha256': apkFingerprint});
 
     json_docs = [json.dumps(doc, default=json_util.default) for doc in analyzeSuccessResultsCollection]
+
+    print "Count is: "+analyzeSuccessResultsCollection.count()
     tempJson = json_docs[0]
     jsonObject = json.loads(tempJson)
 
