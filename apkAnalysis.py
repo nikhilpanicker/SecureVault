@@ -1,6 +1,6 @@
 import hashlib
 import traceback
-from bottle import request, route, static_file, run
+from bottle import request, route, static_file, run, , BaseRequest
 from pymongo import MongoClient
 from ConfigParser import SafeConfigParser
 import os
@@ -34,6 +34,7 @@ def do_upload():
     # configParser.read(db_config_file)
 
     # save_path=configParser.get('General_Config', 'FilePath')
+    logging.info("Starting upload method")
     directory = os.getcwd() +"/Download/"
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -221,4 +222,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, filename="logfile", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
     logging.info("hello")
+    BaseRequest.MEMFILE_MAX =  41943040 
     run(host='0.0.0.0', port=8081)
