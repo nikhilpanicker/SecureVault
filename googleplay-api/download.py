@@ -4,6 +4,7 @@
 GOOGLE_LOGIN = GOOGLE_PASSWORD = AUTH_TOKEN = None
 
 import sys
+import os
 from pprint import pprint
 
 from config import *
@@ -37,7 +38,9 @@ ot = doc.offer[0].offerType
 print "Downloading %s..." % sizeof_fmt(doc.details.appDetails.installationSize),
 data = api.download(packagename, vc, ot)
 print "..."+filename
-filepath="/home/nikhil/Documents/295B/downloads/"
+#filepath=os.path.abspath(os.path.join(os.getcwd(), os.pardir)) +"\Download\\"
+filepath = os.getcwd() +"\Download\\"
+print "Saving to"+filepath+filename
 open(filepath+filename, "wb").write(data)
 print "Done"
 

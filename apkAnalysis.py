@@ -19,20 +19,24 @@ def get_success():
 def do_upload():
 
         #Config reading
-    if platform.system().lower() == "windows":
-        db_config_file = os.path.join(os.path.dirname(sys.executable), 'androbugs-db.cfg')
-    else:
-        db_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'androbugs-db.cfg')
+    # if platform.system().lower() == "windows":
+    #     db_config_file = os.path.join(os.path.dirname(sys.executable), 'androbugs-db.cfg')
+    # else:
+    #     db_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'androbugs-db.cfg')
+    #
+    # if not os.path.isfile(db_config_file):
+    #     print("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
+    #     traceback.print_exc()
+    #
+    # configParser = SafeConfigParser()
+    # configParser.read(db_config_file)
 
-    if not os.path.isfile(db_config_file):
-        print("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
-        traceback.print_exc()
+    # save_path=configParser.get('General_Config', 'FilePath')
+    directory = os.getcwd() +"\Download"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-    configParser = SafeConfigParser()
-    configParser.read(db_config_file)
-
-    save_path=configParser.get('General_Config', 'FilePath')
-
+    save_path = directory
     upload = request.files.get('upload')
     name, ext = os.path.splitext(upload.filename)
     if ext not in ('.apk'):
@@ -61,20 +65,24 @@ def callDownloadApk():
     unirest.timeout(600000)
     requestBody = request._get_body_string()
 
-    #Config reading
-    if platform.system().lower() == "windows":
-        db_config_file = os.path.join(os.path.dirname(sys.executable), 'androbugs-db.cfg')
-    else:
-        db_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'androbugs-db.cfg')
+    # #Config reading
+    # if platform.system().lower() == "windows":
+    #     db_config_file = os.path.join(os.path.dirname(sys.executable), 'androbugs-db.cfg')
+    # else:
+    #     db_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'androbugs-db.cfg')
+    #
+    # if not os.path.isfile(db_config_file):
+    #     print("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
+    #     traceback.print_exc()
+    #
+    # configParser = SafeConfigParser()
+    # configParser.read(db_config_file)
 
-    if not os.path.isfile(db_config_file):
-        print("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
-        traceback.print_exc()
-
-    configParser = SafeConfigParser()
-    configParser.read(db_config_file)
-
-    downloadPath=configParser.get('General_Config', 'DownloadSciptPath')
+    # downloadPath=configParser.get('General_Config', 'DownloadSciptPath')
+    directory = os.getcwd() +"\Download"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    downloadPath = os.getcwd() + "\googleplay-api\\"
 
     #Calling the download apk method
     cmd = 'python '+downloadPath+'download.py ' + requestBody
@@ -101,7 +109,8 @@ def callAnalyseApk(requestBody):
     configParser = SafeConfigParser()
     configParser.read(db_config_file)
 
-    filePath=configParser.get('General_Config', 'FilePath')
+    # filePath=configParser.get('General_Config', 'FilePath')
+    filePath = os.getcwd() +"\Download"
     print "File path is: "+filePath
     MongoDB_Hostname = configParser.get('DB_Config', 'MongoDB_Hostname')
     MongoDB_Database = configParser.get('DB_Config', 'MongoDB_Database')
