@@ -67,6 +67,7 @@ def callDownloadApk():
     #Setting timeout as unirest calls get timed out because analysis takes time
     unirest.timeout(600000)
     requestBody = request._get_body_string()
+    #requestBody=request.forms.get('packageName')
 
     # #Config reading
     # if platform.system().lower() == "windows":
@@ -160,6 +161,7 @@ def buildResult(apkFingerprint,db,apkPath):
     #virusTotalReportJSON = v.scan(apkFingerprint)
     #virusTotalReportJSON = v.scan("/home/voldy/Desktop/transit.apk")
     logging.info("Getting virus total information of apk from apk path"+apkPath)
+    print apkPath
     virusTotalReportJSON = v.scan(apkPath)
 
     scanCompareResults = virusTotalReportJSON._report['scans']
