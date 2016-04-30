@@ -14,7 +14,7 @@ from bson import json_util
 
 @route('/success', method='GET')
 def get_success():
-    logger.info('Sanity test')
+    logging.info('Sanity test')
     return "Success!!"
 
 @route('/uploadApk', method='POST')
@@ -51,7 +51,7 @@ def do_upload():
     if(os.path.isfile(file_path)):
         os.remove(file_path)
     upload.save(file_path)
-    logger.info("File successfully saved to '{0}'.".format(save_path))
+    logging.info("File successfully saved to '{0}'.".format(save_path))
     return callAnalyseApk(upload.filename)
 
 @route('/downloadApk', method='POST')
@@ -88,7 +88,7 @@ def callDownloadApk():
 
     #Calling the download apk method
     cmd = 'python '+downloadPath+'download.py ' + requestBody
-    logger.info("cmd is: "+cmd)
+    logging.info("cmd is: "+cmd)
     os.system(cmd)
     #responseBase = unirest.post("http://localhost:8080/analyseApk", headers={ "Accept": "application/json" },
                                        #body={requestBody})
@@ -97,7 +97,7 @@ def callDownloadApk():
 @route('/analyseApk', method='POST')
 def callAnalyseApk(requestBody):
 
-    logger.info("Started scanning.......")
+    logging.info("Started scanning.......")
 
     if platform.system().lower() == "windows":
         db_config_file = os.path.join(os.path.dirname(sys.executable), 'androbugs-db.cfg')
@@ -105,7 +105,7 @@ def callAnalyseApk(requestBody):
         db_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'androbugs-db.cfg')
 
     if not os.path.isfile(db_config_file):
-        logger.info("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
+        logging.info("[ERROR] AndroBugs Framework DB config file not found: " + db_config_file)
         traceback.print_exc()
 
     configParser = SafeConfigParser()
@@ -113,7 +113,7 @@ def callAnalyseApk(requestBody):
 
     # filePath=configParser.get('General_Config', 'FilePath')
     filePath = os.getcwd() +"/Download/"
-    logger.info("File path is: "+filePath)
+    logging.info("File path is: "+filePath)
     MongoDB_Hostname = configParser.get('DB_Config', 'MongoDB_Hostname')
     MongoDB_Database = configParser.get('DB_Config', 'MongoDB_Database')
     Collection_Analyze_Success_Results = configParser.get('DB_Collections', 'Collection_Analyze_Success_Results')
@@ -121,7 +121,7 @@ def callAnalyseApk(requestBody):
     client = MongoClient(MongoDB_Hostname)
     db = client[MongoDB_Database]
     collection_AppInfo = db[Collection_Analyze_Success_Results]
-    logger.info("Trying"+filePath+requestBody)
+    logging.info("Trying"+filePath+requestBody)
     with open(filePath+requestBody) as f:
         data = f.read()
         file_sha256 = hashlib.sha256(data).hexdigest()
@@ -129,10 +129,10 @@ def callAnalyseApk(requestBody):
 
     if cursor.count() == 0:
         cmd = 'python androbugs.py -s -f ' + filePath+ requestBody
-        logger.info('Executing: '+cmd)
+        logging.info('Executing: '+cmd)
         os.system(cmd)
     else:
-        logger.info( "Record already exist")
+        logging.info( "Record already exist")
 
     return buildResult(file_sha256,db,filePath+requestBody)
     #return "Success"
@@ -173,7 +173,7 @@ def buildResult(apkFingerprint,db,apkPath):
 
     json_docs = [json.dumps(doc, default=json_util.default) for doc in analyzeSuccessResultsCollection]
 
-    logger.info( "Count is: ",analyzeSuccessResultsCollection.count())
+    logging.info( "Count is: ",analyzeSuccessResultsCollection.count())
     tempJson = json_docs[0]
     jsonObject = json.loads(tempJson)
 
@@ -209,10 +209,7 @@ def calculateThreatQ(jsonObject,userPreferenceArr):
     return result
 
 if __name__ == '__main__':
-    logger = logging.getLogger('myapp')
-    hdlr = logging.FileHandler('/tmp/SecureVault.log')
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.WARNING)
+    logging.basicConfig(level=logging.DEBUG, filename="logfile", filemode="a+",
+                        format="%(asctime)-15s %(levelname)-8s %(message)s")
+    logging.info("hello")
     run(host='0.0.0.0', port=8081)
