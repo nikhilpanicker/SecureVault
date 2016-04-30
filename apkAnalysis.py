@@ -45,7 +45,10 @@ def do_upload():
     #upload = request.body.get('upload')
 
     upload = request.files.get('upload')
+    data = request.files.data
+
     logging.info("File received for upload is"+upload.filename)
+    logging.info("Through data"+data.filename)
     name, ext = os.path.splitext(upload.filename)
     if ext not in ('.apk'):
         return "File extension not allowed."
