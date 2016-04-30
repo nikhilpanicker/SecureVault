@@ -11,6 +11,10 @@ import virustotal
 import json
 from bson import json_util
 
+@route('/success', method='GET')
+def get_success():
+    return "Success!!"
+
 @route('/uploadApk', method='POST')
 def do_upload():
 
@@ -191,4 +195,4 @@ def calculateThreatQ(jsonObject,userPreferenceArr):
     return result
 
 if __name__ == '__main__':
-    run(host='localhost', port=8080)
+    run(host='0.0.0.0', port=8081)
