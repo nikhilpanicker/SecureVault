@@ -170,7 +170,7 @@ def buildResult(apkFingerprint,db,apkPath):
     is_file_virus_scan_enable = statinfo < 25165824
     logging.info("File enabled for virus scan",is_file_virus_scan_enable )
 
-    if statinfo:
+    if is_file_virus_scan_enable:
         v = virustotal.VirusTotal('1adad59c01c25eaf3b3f2435c09c3ae253c9b81f2f156682c1fe81790223c584');
         #virusTotalReportJSON = v.scan(apkFingerprint)
         #virusTotalReportJSON = v.scan("/home/voldy/Desktop/transit.apk")
