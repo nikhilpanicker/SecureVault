@@ -45,7 +45,6 @@ def do_upload():
     #upload = request.body.get('upload')
 
     upload = request.files.get('upload')
-    data = request.files.data
 
     logging.info("File received for upload is"+upload.filename)
     #logging.info("Through data"+data.filename)
@@ -166,20 +165,26 @@ def buildResult(apkFingerprint,db,apkPath):
     #apkFingerprint = '2fd01b373e6ea2e151fdc44be369999c4483e5248cd733f617313f0eba7cbaf2'
 
     #Get scan results from Virus total public API
-    v = virustotal.VirusTotal('1adad59c01c25eaf3b3f2435c09c3ae253c9b81f2f156682c1fe81790223c584');
-    #virusTotalReportJSON = v.scan(apkFingerprint)
-    #virusTotalReportJSON = v.scan("/home/voldy/Desktop/transit.apk")
-    logging.info("Getting virus total information of apk from apk path"+apkPath)
-    print apkPath
-    virusTotalReportJSON = v.scan(apkPath)
+    statinfo = os.stat(apkPath)
+    statinfo = statinfo.st_size
+    is_file_virus_scan_enable = statinfo < 25165824
+    logging.info("File enabled for virus scan",is_file_virus_scan_enable )
 
-    scanCompareResults = virusTotalReportJSON._report['scans']
+    if statinfo:
+        v = virustotal.VirusTotal('1adad59c01c25eaf3b3f2435c09c3ae253c9b81f2f156682c1fe81790223c584');
+        #virusTotalReportJSON = v.scan(apkFingerprint)
+        #virusTotalReportJSON = v.scan("/home/voldy/Desktop/transit.apk")
+        logging.info("Getting virus total information of apk from apk path"+apkPath)
+        print apkPath
+        virusTotalReportJSON = v.scan(apkPath)
 
-    #update the virus total scan results in database
-    updateResult = db.AnalyzeSuccessResults.update_one(
-       {"file_sha256": apkFingerprint},
-      {"$set": {"scanCompareResults": scanCompareResults}}
-    )
+        scanCompareResults = virusTotalReportJSON._report['scans']
+
+        #update the virus total scan results in database
+        updateResult = db.AnalyzeSuccessResults.update_one(
+           {"file_sha256": apkFingerprint},
+          {"$set": {"scanCompareResults": scanCompareResults}}
+        )
 
     #fetch scan result from mongoDB
     logging.info("Fetch results from mongoDB with fingerprint"+apkFingerprint)
