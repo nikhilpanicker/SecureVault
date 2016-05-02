@@ -45,6 +45,7 @@ def do_upload():
     #upload = request.body.get('upload')
 
     upload = request.files.get('upload')
+    preference = request.forms.get('preference')
 
     logging.info("File received for upload is"+upload.filename)
     #logging.info("Through data"+data.filename)
@@ -61,7 +62,7 @@ def do_upload():
     upload.save(file_path)
     logging.info("File successfully saved to '{0}'.".format(save_path))
     logging.info("Get report of: "+upload.filename)
-    return callAnalyseApk(upload.filename)
+    return callAnalyseApk(upload.filename,preference)
 
 @route('/downloadApk', method='POST')
 def callDownloadApk():
@@ -74,8 +75,9 @@ def callDownloadApk():
 
     #Setting timeout as unirest calls get timed out because analysis takes time
     unirest.timeout(600000)
-    requestBody = request._get_body_string()
-    #requestBody=request.forms.get('packageName')
+    #requestBody = request._get_body_string()
+    preference = request.forms.get('preference')
+    requestBody=request.forms.get('packageName')
 
     # #Config reading
     # if platform.system().lower() == "windows":
@@ -102,10 +104,10 @@ def callDownloadApk():
     os.system(cmd)
     #responseBase = unirest.post("http://localhost:8080/analyseApk", headers={ "Accept": "application/json" },
                                        #body={requestBody})
-    return callAnalyseApk(requestBody+".apk")
+    return callAnalyseApk(requestBody+".apk",preference)
 
 @route('/analyseApk', method='POST')
-def callAnalyseApk(requestBody):
+def callAnalyseApk(requestBody,preference):
 
     logging.info("Started scanning.......")
 
@@ -144,13 +146,14 @@ def callAnalyseApk(requestBody):
     else:
         logging.info( "Record already exist")
 
-    return buildResult(file_sha256,db,filePath+requestBody)
+    return buildResult(file_sha256,db,filePath+requestBody,preference)
     #return "Success"
 
 
 
-def buildResult(apkFingerprint,db,apkPath):
+def buildResult(apkFingerprint,db,apkPath,preference):
     #permission list from user
+    userPreferences = preference
     userPreferenceArr = ["android.permission.INTERNET"];
 
     # API KEY for virus total
@@ -199,9 +202,165 @@ def buildResult(apkFingerprint,db,apkPath):
 
     #add scanCompare results to main result object
     #jsonObject['scanCompareResults'] = scanCompareResults
+    #jsonObject = addPreferenceResults(jsonObject,userPreferences)
+    jsonObject = addPreferenceResults(jsonObject,userPreferences)
     threatQ = calculateThreatQ(jsonObject,userPreferenceArr)
     jsonObject['threatQ'] = threatQ
+
     return jsonObject
+
+def addPreferenceResults(jsonObject,userPreferences) :
+
+    logging.info(" ************ Started Adding user preferences to result ************************")
+
+    # Constant Preferences
+
+    CALENDER = "CALENDAR"
+    CAMERA = "CAMERA"
+    SENSORS = "SENSORS"
+    CONTACTS = "CONTACTS"
+    LOCATION = "LOCATION"
+    MICROPHONE = "MICROPHONE"
+    PHONE = "PHONE"
+    SMS = "SMS"
+    STORAGE = "STORAGE"
+
+    # populating Permission Group Set
+
+    # Calender
+    calenderSet = set()
+    calenderSet.add("android.permission.READ_CALENDAR")
+    calenderSet.add("android.permission.WRITE_CALENDAR")
+
+    # Camera
+    cameraSet = set(["android.permission.CAMERA"])
+
+    # SENSORS
+    sensorSet = set()
+    sensorSet.add("android.permission.BODY_SENSORS")
+    sensorSet.add("android.permission.USE_FINGERPRINT")
+
+    # CONTACTS
+    contactSet = set()
+    contactSet.add("android.permission.READ_CONTACTS")
+    contactSet.add("android.permission.WRITE_CONTACTS")
+    contactSet.add("android.permission.GET_ACCOUNTS")
+
+    # LOCATION
+    locationSet = set()
+    locationSet.add("android.permission.ACCESS_FINE_LOCATION")
+    locationSet.add("android.permission.ACCESS_FINE_LOCATION")
+    locationSet.add("android.permission.ACCESS_COARSE_LOCATION")
+    locationSet.add("android.permission.ACCESS_LOCATION_EXTRA_COMMANDS")
+    locationSet.add("android.permission.INSTALL_LOCATION_PROVIDER")
+    locationSet.add("android.permission.ACCESS_MOCK_LOCATION")
+    locationSet.add("android.permission.CONTROL_LOCATION_UPDATES")
+
+    # MICROPHONE
+    microphoneSet = set(["android.permission.RECORD_AUDIO"])
+
+    # PHONE
+    phoneSet = set()
+    phoneSet.add("android.permission.READ_PHONE_STATE")
+    phoneSet.add("android.permission.CALL_PHONE")
+    phoneSet.add("android.permission.ACCESS_IMS_CALL_SERVICE")
+    phoneSet.add("android.permission.READ_CALL_LOG")
+    phoneSet.add("android.permission.WRITE_CALL_LOG")
+    phoneSet.add("com.android.voicemail.permission.ADD_VOICEMAIL")
+    phoneSet.add("android.permission.USE_SIP")
+    phoneSet.add("android.permission.PROCESS_OUTGOING_CALLS")
+    phoneSet.add("android.permission.MODIFY_PHONE_STATE")
+    phoneSet.add("android.permission.READ_PRECISE_PHONE_STATE")
+    phoneSet.add("android.permission.READ_PRIVILEGED_PHONE_STATE")
+    phoneSet.add("android.permission.REGISTER_SIM_SUBSCRIPTION")
+    phoneSet.add("android.permission.REGISTER_CALL_PROVIDER")
+    phoneSet.add("android.permission.REGISTER_CONNECTION_MANAGER")
+    phoneSet.add("android.permission.BIND_INCALL_SERVICE")
+    phoneSet.add("android.permission.BIND_CONNECTION_SERVICE")
+    phoneSet.add("android.permission.BIND_TELECOM_CONNECTION_SERVICE")
+    phoneSet.add("android.permission.CONTROL_INCALL_EXPERIENCE")
+    phoneSet.add("android.permission.RECEIVE_STK_COMMANDS")
+
+    # SMS
+    smsSet = set()
+    smsSet.add("android.permission.SEND_SMS")
+    smsSet.add("android.permission.RECEIVE_SMS")
+    smsSet.add("android.permission.READ_SMS")
+    smsSet.add("android.permission.RECEIVE_WAP_PUSH")
+    smsSet.add("android.permission.RECEIVE_MMS")
+    smsSet.add("android.permission.READ_CELL_BROADCASTS")
+    smsSet.add("android.permission.WRITE_SMS")
+    smsSet.add("android.permission.CARRIER_FILTER_SMS")
+    smsSet.add("android.permission.BROADCAST_SMS")
+
+    # STORAGE
+    storageSet = set()
+    storageSet.add("android.permission.READ_EXTERNAL_STORAGE")
+    storageSet.add("android.permission.WRITE_EXTERNAL_STORAGE")
+    storageSet.add("android.permission.WRITE_MEDIA_STORAGE")
+    storageSet.add("android.permission.ACCESS_KEYGUARD_SECURE_STORAGE")
+    storageSet.add("android.permission.MOUNT_UNMOUNT_FILESYSTEMS")
+    storageSet.add("android.permission.MOUNT_FORMAT_FILESYSTEMS")
+
+    # populating Permissions to Preference Map
+
+    categoryPermissionsMap = {
+                                CALENDER: calenderSet,
+                                CAMERA: cameraSet,
+                                SENSORS: sensorSet,
+                                CONTACTS: contactSet,
+                                LOCATION: locationSet,
+                                MICROPHONE: microphoneSet,
+                                PHONE: phoneSet,
+                                SMS: smsSet,
+                                STORAGE: storageSet
+                            }
+
+    # fetch application permissions array from json
+    applicationPermissionArr = jsonObject['permission']
+    logging.info("Permission Used" , applicationPermissionArr)
+    applicationPermissionSet = set(applicationPermissionArr)
+
+    # build preference array from comma separated user Prefeerence
+    preferences = userPreferences.split(",")
+    logging.info("User preferences received : " , preferences)
+
+    # flag to determine if preferences are violated
+    isPreferenceViolated = False
+
+    # list for preferences violated
+    violatedPreferenceList = []
+
+    # list for preferences adhered
+    adheredPreferenceList = []
+
+    for preference in preferences:
+        preferencePermissions = categoryPermissionsMap[preference]
+        preferencePermissionViolatedSet = set(preferencePermissions).intersection(applicationPermissionSet)
+        if (len(preferencePermissionViolatedSet) > 0):
+            violatedPreferenceList.append(preference)
+            isPreferenceViolated = True
+        else:
+            adheredPreferenceList.append(preference)
+
+
+    # adding violated preference to json
+    jsonObject['violatedPreferenceList'] = violatedPreferenceList
+    logging.info("Violated Preferences added to result : " , violatedPreferenceList)
+
+    # adding adhered preferences to json
+    jsonObject['adheredPreferenceList'] = adheredPreferenceList
+    logging.info("Adhered preferences added to result : " , adheredPreferenceList)
+
+    # adding whether preferences are violated
+    jsonObject['isPreferenceViolated']  = isPreferenceViolated
+    logging.info("isPreferenceViolated added to result as : " , isPreferenceViolated)
+
+    #jsonWithPreferenceInformation = json.dumps(jsonObject)
+
+    logging.info(" ************ User Preferences added to result json ******************************")
+
+    return  jsonObject
 
 def calculateThreatQ(jsonObject,userPreferenceArr):
 
@@ -211,14 +370,18 @@ def calculateThreatQ(jsonObject,userPreferenceArr):
 
     #fetch application permissions array from json
     applicationPermissionArr = jsonObject['permission']
+    applicationPermissionSet = set(applicationPermissionArr)
 
     #give priority to userPreferences, check against application permissions
-    intersectionSet = set(applicationPermissionArr).intersection(userPreferenceArr)
-    if(intersectionSet.__len__() > 0 ):
+    isPreferenceViolated = jsonObject['isPreferenceViolated']
+
+
+    #intersectionSet = set(applicationPermissionArr).intersection(userPreferenceArr)
+    if(isPreferenceViolated):
         result = "RED"
     else:
         #check for critical and warnings
-        if(criticalVectorArray.len >=3 ):
+        if(len(criticalVectorArray) >=3 ):
             result = "RED"
         else:
             if(warningVectorArray.len >= 3):
