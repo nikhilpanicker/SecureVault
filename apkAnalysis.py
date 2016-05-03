@@ -46,6 +46,7 @@ def do_upload():
 
     upload = request.files.get('upload')
     preference = request.forms.get('preference')
+    preference = preference[1:-1]
 
     logging.info("File received for upload is"+upload.filename)
     #logging.info("Through data"+data.filename)
