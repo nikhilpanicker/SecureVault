@@ -323,7 +323,7 @@ def addPreferenceResults(jsonObject,userPreferences) :
 
     # build preference array from comma separated user Prefeerence
     preferences = userPreferences.split(",")
-    logging.info("User preferences received : " , preferences)
+    logging.info("User preferences received : " , preferences[0])
 
     # flag to determine if preferences are violated
     isPreferenceViolated = False
