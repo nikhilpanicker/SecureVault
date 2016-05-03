@@ -384,7 +384,7 @@ def calculateThreatQ(jsonObject,userPreferenceArr):
         if(len(criticalVectorArray) >=3 ):
             result = "RED"
         else:
-            if(warningVectorArray.len >= 3):
+            if(len(warningVectorArray) >= 3):
                 result = "AMBER"
             else:
                 result ="GREEN"
